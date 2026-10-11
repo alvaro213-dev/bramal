@@ -1,0 +1,9 @@
+import { Role } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import { AuthError, requireRole, sessionFromRequest } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { categorySchema } from "@/validations";
+const failure = (error: unknown) => NextResponse.json({ error: error instanceof Error ? error.message : "Error" }, { status: error instanceof AuthError ? error.status : 400 });
+export async function GET(request: NextRequest) { try { requireRole(await sessionFromRequest(request), [Role.ADMINISTRADOR]); return NextResponse.json(await prisma.category.findMany({ orderBy: { name: "asc" } })); } catch (error) { return failure(error); } }
+export async function POST(request: NextRequest) { try { requireRole(await sessionFromRequest(request), [Role.ADMINISTRADOR]); return NextResponse.json(await prisma.category.create({ data: categorySchema.parse(await request.json()) }), { status: 201 }); } catch (error) { return failure(error); } }
+export async function DELETE(request: NextRequest) { try { requireRole(await sessionFromRequest(request), [Role.ADMINISTRADOR]); const id = request.nextUrl.searchParams.get("id"); if (!id) throw new Error("Categoría inválida."); const category = await prisma.category.findUnique({ where: { id }, select: { _count: { select: { products: true } } } }); if (!category) return NextResponse.json({ error: "Categoría no encontrada." }, { status: 404 }); if (category._count.products) return NextResponse.json({ error: "No se puede eliminar una categoría con productos asociados." }, { status: 409 }); await prisma.category.delete({ where: { id } }); return new NextResponse(null, { status: 204 }); } catch (error) { return failure(error); } }

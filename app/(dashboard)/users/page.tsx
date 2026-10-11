@@ -1,0 +1,6 @@
+import { getSession, requireRole } from "@/lib/auth";
+import { UserForm } from "@/components/user-form";
+import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
+import { redirect } from "next/navigation";
+export default async function UsersPage() { try { requireRole(await getSession(), [Role.ADMINISTRADOR]); } catch { redirect("/?error=sin-permisos"); } const users = await prisma.user.findMany({ select: { id: true, name: true, username: true, role: true, status: true }, orderBy: { name: "asc" } }); return <section><div className="mb-6 flex items-end justify-between"><div><p className="muted">Accesos y permisos</p><h1 className="text-2xl font-bold">Usuarios</h1></div><UserForm/></div><div className="card divide-y">{users.map(u => <div key={u.id} className="flex items-center justify-between p-4"><div><b>{u.name}</b><p className="muted">{u.username}</p></div><div className="text-right"><span className="badge bg-blue-50 text-blue-700">{u.role}</span><p className="mt-1 text-xs text-slate-500">{u.status}</p></div></div>)}</div></section>; }

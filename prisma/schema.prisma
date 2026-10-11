@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMINISTRADOR
+  OPERADOR
+  VENDEDOR
+}
+
+enum Status {
+  ACTIVO
+  INACTIVO
+}
+
+enum MovementType {
+  ENTRADA
+  SALIDA
+  AJUSTE
+}
+
+model User {
+  id String @id @default(cuid())
+  name String
+  username String @unique
+  passwordHash String
+  email String? @unique
+  role Role @default(VENDEDOR)
+  status Status @default(ACTIVO)
+  createdAt DateTime @default(now())
+  movements InventoryMovement[]
+}
+
+model Category {
+  id String @id @default(cuid())
+  name String @unique
+  description String?
+  status Status @default(ACTIVO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products Product[]
+  @@index([status, name])
+}
+
+model Supplier {
+  id String @id @default(cuid())
+  name String
+  rut String? @unique
+  phone String?
+  email String?
+  address String?
+  contactName String?
+  status Status @default(ACTIVO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products Product[]
+  @@index([status, name])
+}
+
+model Product {
+  id String @id @default(cuid())
+  sku String @unique
+  name String
+  description String?
+  categoryId String
+  supplierId String?
+  purchasePrice Decimal @db.Decimal(12, 2)
+  salePrice Decimal @db.Decimal(12, 2)
+  currentStock Int @default(0)
+  minimumStock Int @default(0)
+  unit String @default("unidad")
+  status Status @default(ACTIVO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  category Category @relation(fields: [categoryId], references: [id])
+  supplier Supplier? @relation(fields: [supplierId], references: [id])
+  movements InventoryMovement[]
+  @@index([categoryId, status])
+  @@index([supplierId, status])
+  @@index([name])
+}
+
+model InventoryMovement {
+  id String @id @default(cuid())
+  productId String
+  userId String
+  type MovementType
+  quantity Int
+  previousStock Int
+  resultingStock Int
+  unitCost Decimal? @db.Decimal(12, 2)
+  reason String
+  notes String?
+  createdAt DateTime @default(now())
+  product Product @relation(fields: [productId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  @@index([productId, createdAt])
+  @@index([type, createdAt])
+}

@@ -1,0 +1,2 @@
+import { NextResponse } from "next/server"; import { prisma } from "@/lib/prisma";
+export async function GET() { const products = await prisma.product.findMany({ where: { status: "ACTIVO" }, include: { category: true }, orderBy: { name: "asc" } }); const rows = products.map(p => ({ id: p.id, sku: p.sku, name: p.name, stock: p.currentStock, unitCost: Number(p.purchasePrice), total: p.currentStock * Number(p.purchasePrice), category: p.category.name })); return NextResponse.json({ rows, total: rows.reduce((sum,row) => sum + row.total, 0) }); }

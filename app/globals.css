@@ -1,0 +1,5 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base { body { @apply bg-slate-50 text-slate-800 antialiased; } }
+@layer components { .card { @apply rounded-2xl border border-slate-200 bg-white shadow-sm; } .muted { @apply text-sm text-slate-500; } .badge { @apply inline-flex rounded-full px-2.5 py-1 text-xs font-semibold; } }

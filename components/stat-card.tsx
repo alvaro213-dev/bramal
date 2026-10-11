@@ -1,0 +1,2 @@
+import { ReactNode } from "react";
+export function StatCard({ label, value, hint, icon }: { label: string; value: string; hint?: string; icon: ReactNode }) { return <div className="card p-5"><div className="flex items-start justify-between"><div><p className="muted">{label}</p><p className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{value}</p>{hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}</div><div className="rounded-xl bg-blue-50 p-3 text-blue-600">{icon}</div></div></div>; }
