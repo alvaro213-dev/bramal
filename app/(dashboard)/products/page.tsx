@@ -21,12 +21,7 @@ export default async function ProductsPage() { const session = await getSession(
           <h1 className="text-2xl font-bold">Productos</h1>
         </div>
 
-        <Link
-          href="/products/new"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
-        >
-          Nuevo producto
-        </Link>
+        {canManage && <div className="flex gap-2"><Link href="/products/import" className="rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">Importar Excel</Link><Link href="/products/new" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Nuevo producto</Link></div>}
       </div>
 
       <div className="card overflow-x-auto">
